@@ -1,6 +1,3 @@
-// Consecutive Kills Plugin
-// By Peak
-
 function On_PlayerKilled(DeathEvent) {
   if (DeathEvent.Attacker.SteamID != DeathEvent.Victim.SteamID) {
     var LastKillTime = GetLastKillTime(DeathEvent.Attacker.SteamID);
@@ -9,7 +6,7 @@ function On_PlayerKilled(DeathEvent) {
       if (TimeStamp - LastKillTime <= 4) {
         var ConsecutiveKills = GetCurrentConsecutiveKills(DeathEvent.Attacker.SteamID) + 1;
         SetCurrentConsecutiveKills(DeathEvent.Attacker.SteamID, ConsecutiveKills);
-        ShowConsecutiveKillsNotification(ConsecutiveKills, DeathEvent.Attacker.Name);
+        ShowConsecutiveKillsNotification(DeathEvent.Attacker.Name, ConsecutiveKills);
       } else {
         SetCurrentConsecutiveKills(DeathEvent.Attacker.SteamID, 1);
       }
@@ -20,7 +17,24 @@ function On_PlayerKilled(DeathEvent) {
   }
 }
 
-function ShowConsecutiveKillsNotification(KillCount, Name) {
+function GetLastKillTime(SteamID) {
+  return Data.GetTableValue("Peak_CS_LastKillTime", SteamID);
+}
+
+function SetLastKillTime(SteamID) {
+  var TimeStamp = Math.round(Date.now() / 1000);
+  Data.AddTableValue("Peak_CS_LastKillTime", SteamID, TimeStamp);
+}
+
+function GetCurrentConsecutiveKills(SteamID) {
+  return Data.GetTableValue("Peak_CS_Count", SteamID);
+}
+
+function SetCurrentConsecutiveKills(SteamID, KillCount) {
+  Data.AddTableValue("Peak_CS_Count", SteamID, KillCount);
+}
+
+function ShowConsecutiveKillsNotification(Name, KillCount) {
   if (KillCount == 2) {
     Server.Broadcast(Name + " has scored a double kill!");
   } else if (KillCount == 3) {
@@ -32,22 +46,5 @@ function ShowConsecutiveKillsNotification(KillCount, Name) {
   } else if (KillCount == 6) {
     Server.Broadcast(Name + " has scored a MONSTERKILL!");
   }
-}
-
-function GetLastKillTime(SteamID) {
-  return Data.GetTableValue("lastkilltime", SteamID);
-}
-
-function SetLastKillTime(SteamID) {
-  var TimeStamp = Math.round(Date.now() / 1000);
-  Data.AddTableValue("lastkilltime", SteamID, TimeStamp);
-}
-
-function GetCurrentConsecutiveKills(SteamID) {
-  return Data.GetTableValue("consecutivekills", SteamID);
-}
-
-function SetCurrentConsecutiveKills(SteamID, KillCount) {
-  Data.AddTableValue("consecutivekills", SteamID, KillCount);
 }
 
